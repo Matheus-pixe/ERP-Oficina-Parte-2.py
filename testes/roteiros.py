@@ -20,6 +20,7 @@ def ordens(travessias=False):
     L.extend(["2", "77"])                        # consultar inexistente
     L.extend(["4", "20", "2"])                   # status -> Em manutencao
     L.extend(["4", "20", "9"])                   # status invalido
+    L.extend(["4", "20", "1"])                   # volta à fila de espera
     L.extend(["4", "77"])                        # status de inexistente
     L.extend(["5", "30", "5"])                   # prioridade 2 -> 5
     L.extend(["5", "30", "7"])                   # prioridade invalida
