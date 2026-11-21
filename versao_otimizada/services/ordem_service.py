@@ -1,23 +1,26 @@
+from math import isfinite
+
 from algoritmos.ordenacao import (
-    ordenar_por_codigo,
     ordenar_por_prioridade,
     ordenar_por_valor,
     ordenar_por_chegada
 )
+
 from models.ordem_servico import OrdemServico
-
 from dados.ordens import ordens
-
-from algoritmos.ordenacao import ordenar_por_prioridade, ordenar_por_valor
-
 from estruturas.fila_prioridade import FilaPrioridade
+
 fila_ordens = FilaPrioridade()
 
 #cadastro e ordem de serviço
 def cadastrar_ordem():
     print("\n--- CADASTRO DE ORDEM DE SERVIÇO ---")
 
-    codigo = int(input("Código da OS: "))
+    try:
+        codigo = int(input("Código da OS: "))
+    except ValueError:
+        print("Digite um número inteiro válido.")
+        return
 
     if ordens.buscar(codigo) is not None:
         print("Já existe uma ordem com esse código.")
@@ -27,7 +30,11 @@ def cadastrar_ordem():
     veiculo = input("Veículo: ")
     problema = input("Problema apresentado: ")
 
-    prioridade = int(input("Prioridade (1 a 5): "))
+    try:
+        prioridade = int(input("Prioridade (1 a 5): "))
+    except ValueError:
+        print("Digite um número inteiro válido.")
+        return
 
     if prioridade < 1 or prioridade > 5:
         print("Prioridade inválida.")
@@ -67,7 +74,11 @@ def listar_ordens():
 
 #consultar uma OS (ordem de serviço)
 def consultar_ordem():
-    codigo = int(input("Código da OS: "))
+    try:
+        codigo = int(input("Código da OS: "))
+    except ValueError:
+        print("Digite um número inteiro válido.")
+        return
 
     ordem = ordens.buscar(codigo)
 
@@ -84,9 +95,12 @@ def consultar_ordem():
     print("Status:", ordem.status)
     print(f"Valor: R$ {ordem.valor_total:.2f}")
 
-#alterar status
 def alterar_status():
-    codigo = int(input("Código da OS: "))
+    try:
+        codigo = int(input("Código da OS: "))
+    except ValueError:
+        print("Código inválido.")
+        return
 
     ordem = ordens.buscar(codigo)
 
@@ -100,7 +114,7 @@ def alterar_status():
     print("2 - Em manutenção")
     print("3 - Concluída")
 
-    opcao = input("Novo status: ")
+    opcao = input("Novo status: ").strip()
 
     if opcao == "1":
         novo_status = "Aguardando"
@@ -117,11 +131,21 @@ def alterar_status():
 
     ordem.alterar_status(novo_status)
 
+    if novo_status == "Aguardando":
+        if ordem.pos_fila == -1:
+            fila_ordens.inserir(ordem)
+    else:
+        fila_ordens.remover(ordem)
+
     print("Status alterado com sucesso!")
 
-#alterar prioridade
+
 def alterar_prioridade():
-    codigo = int(input("Código da OS: "))
+    try:
+        codigo = int(input("Código da OS: "))
+    except ValueError:
+        print("Digite um número inteiro válido.")
+        return
 
     ordem = ordens.buscar(codigo)
 
@@ -131,7 +155,11 @@ def alterar_prioridade():
 
     print("Prioridade atual:", ordem.prioridade)
 
-    nova_prioridade = int(input("Nova prioridade (1 a 5): "))
+    try:
+        nova_prioridade = int(input("Nova prioridade (1 a 5): "))
+    except ValueError:
+        print("Digite um número inteiro válido.")
+        return
 
     if nova_prioridade < 1 or nova_prioridade > 5:
         print("Prioridade inválida.")
@@ -144,7 +172,11 @@ def alterar_prioridade():
 
 #registrar serviço
 def registrar_servico():
-    codigo = int(input("Código da OS: "))
+    try:
+        codigo = int(input("Código da OS: "))
+    except ValueError:
+        print("Código inválido.")
+        return
 
     ordem = ordens.buscar(codigo)
 
@@ -152,23 +184,36 @@ def registrar_servico():
         print("Ordem de serviço não encontrada.")
         return
 
-    descricao = input("Descrição do serviço: ")
-    valor_texto = input("Valor do serviço: R$ ")
-    valor = float(valor_texto.replace(",", "."))
+    descricao = input("Descrição do serviço: ").strip()
 
-    ordem.adicionar_servico(
-        descricao,
-        valor
-    )
+    if not descricao:
+        print("A descrição é obrigatória.")
+        return
+
+    try:
+        valor_texto = input("Valor do serviço: R$ ")
+        valor = float(valor_texto.replace(",", "."))
+
+    except ValueError:
+        print("Valor inválido.")
+        return
+
+    if valor < 0 or not isfinite(valor):
+        print("Valor inválido.")
+        return
+
+    ordem.adicionar_servico(descricao, valor)
 
     print("Serviço registrado com sucesso!")
-    print(
-        f"Valor atual da OS: R$ {ordem.valor_total:.2f}"
-    )
+    print(f"Valor atual da OS: R$ {ordem.valor_total:.2f}")
 
-#remover ordem
+
 def remover_ordem():
-    codigo = int(input("Código da OS que deseja remover: "))
+    try:
+        codigo = int(input("Código da OS que deseja remover: "))
+    except ValueError:
+        print("Digite um número inteiro válido.")
+        return
 
     ordem = ordens.buscar(codigo)
 

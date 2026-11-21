@@ -1,6 +1,7 @@
+from math import isfinite
+
 pecas = []
 historico_movimentacoes = []
-
 
 def menu():
     while True:
@@ -43,14 +44,26 @@ def menu():
 def cadastro_pecas():
     print('CADASTRO DE PEÇAS')
 
-    peca = input('Peça veicular: ')
+    peca = input('Peça veicular: ').strip()
 
-    if peca == "":
+    if not peca:
         print('O CADASTRO É OBRIGATORIO')
         return
 
-    quantidade = int(input('Quantidade de estoque dessa peça: '))
-    valor = float(input('Qual valor da peça: R$'))
+    if buscar_peca(peca) is not None:
+        print('Essa peça já está cadastrada!')
+        return
+
+    try:
+        quantidade = int(input('Quantidade de estoque dessa peça: '))
+        valor = float(input('Qual valor da peça: R$').replace(',', '.'))
+    except ValueError:
+        print('Quantidade ou valor inválido!')
+        return
+
+    if quantidade < 0 or valor < 0 or not isfinite(valor):
+        print('Quantidade ou valor inválido!')
+        return
 
     peca_new = {
         'Peça: ': peca,
@@ -58,7 +71,19 @@ def cadastro_pecas():
         'Preço: R$': valor,
     }
 
-    pecas.append(peca_new)
+    esquerda = 0
+    direita = len(pecas)
+
+    while esquerda < direita:
+        meio = (esquerda + direita) // 2
+
+        if pecas[meio]['Peça: '].casefold() < peca.casefold():
+            esquerda = meio + 1
+        else:
+            direita = meio
+
+    pecas.insert(esquerda, peca_new)
+
     print('Peça cadastrada!')
 
 
@@ -66,23 +91,27 @@ def ordenar_pecas():
     n = len(pecas)
     for i in range(n - 1):
         for j in range(n - 1 - i):
-            if pecas[j]['Peça: '] > pecas[j + 1]['Peça: ']:
+            if pecas[j]['Peça: '].casefold() > pecas[j + 1]['Peça: '].casefold():
                 pecas[j], pecas[j + 1] = pecas[j + 1], pecas[j]
     return pecas
 
 
 def busca_binaria(nome_procurado):
+    nome_procurado = nome_procurado.strip().casefold()
+
     esquerda = 0
     direita = len(pecas) - 1
 
     while esquerda <= direita:
         meio = (esquerda + direita) // 2
-        nome_meio = pecas[meio]['Peça: ']
+        nome_meio = pecas[meio]['Peça: '].casefold()
 
         if nome_meio == nome_procurado:
             return meio
+
         elif nome_meio < nome_procurado:
             esquerda = meio + 1
+
         else:
             direita = meio - 1
 
@@ -90,12 +119,11 @@ def busca_binaria(nome_procurado):
 
 
 def buscar_peca(nome_procurado):
-    if len(pecas) == 0:
-        return None
-    ordenar_pecas()
     indice = busca_binaria(nome_procurado)
+
     if indice == -1:
         return None
+
     return pecas[indice]
 
 
@@ -126,25 +154,43 @@ def alteracao_pecas():
 
     if peca_encontrada is None:
         print('Peça não encontrada!')
-    else:
-        print(f"Peça atual: {peca_encontrada}")
+        return
 
-        nova_quantidade = input('Nova quantidade (deixe em branco para não alterar): ')
-        if nova_quantidade != "":
-            peca_encontrada['Quantidade: '] = int(nova_quantidade)
+    print(f"Peça atual: {peca_encontrada}")
+    nova_quantidade = input('Nova quantidade (deixe em branco para não alterar): ').strip()
+    novo_valor = input('Novo valor (deixe em branco para não alterar): ').strip()
 
-        novo_valor = input('Novo valor (deixe em branco para não alterar): ')
-        if novo_valor != "":
-            peca_encontrada['Preço: R$'] = float(novo_valor)
+    try:
+        quantidade = (
+            int(nova_quantidade)
+            if nova_quantidade
+            else peca_encontrada['Quantidade: ']
+        )
 
-        print('Peça alterada com sucesso!')
+        valor = (
+            float(novo_valor.replace(',', '.'))
+            if novo_valor
+            else peca_encontrada['Preço: R$']
+        )
+
+    except ValueError:
+        print('Valor ou quantidade inválida!')
+        return
+
+    if quantidade < 0 or valor < 0 or not isfinite(valor):
+        print('Quantidade ou valor inválido!')
+        return
+
+    peca_encontrada['Quantidade: '] = quantidade
+    peca_encontrada['Preço: R$'] = valor
+
+    print('Peça alterada com sucesso!')
 
 
 def remocao_pecas():
     print('REMOÇÃO DE PEÇA')
 
     nome_procurado = input('Qual peça você quer remover: ')
-    ordenar_pecas()
     indice_encontrado = busca_binaria(nome_procurado)
 
     if indice_encontrado == -1:
@@ -168,7 +214,11 @@ def entrada_estoque():
         print('Peça não encontrada!')
         return
 
-    quantidade_entrada = int(input('Quantidade que está entrando: '))
+    try:
+        quantidade_entrada = int(input('Quantidade que está entrando: '))
+    except ValueError:
+        print("Quantidade inválida!")
+        return
 
     if quantidade_entrada <= 0:
         print('A quantidade precisa ser maior que zero!')
@@ -179,6 +229,7 @@ def entrada_estoque():
     historico_movimentacoes.append({
         'tipo': 'entrada',
         'peca': nome_procurado,
+        'registro': peca_encontrada,
         'quantidade': quantidade_entrada,
     })
 
@@ -195,7 +246,11 @@ def saida_estoque():
         print('Peça não encontrada!')
         return
 
-    quantidade_saida = int(input('Quantidade que está saindo: '))
+    try:
+        quantidade_saida = int(input('Quantidade que está saindo: '))
+    except ValueError:
+        print("Quantidade inválida!")
+        return
 
     if quantidade_saida <= 0:
         print('A quantidade precisa ser maior que zero!')
@@ -210,6 +265,7 @@ def saida_estoque():
     historico_movimentacoes.append({
         'tipo': 'saida',
         'peca': nome_procurado,
+        'registro': peca_encontrada,
         'quantidade': quantidade_saida,
     })
 
@@ -230,25 +286,35 @@ def exibir_historico():
 def desfazer_ultima_movimentacao():
     print('DESFAZER ÚLTIMA MOVIMENTAÇÃO')
 
-    if len(historico_movimentacoes) == 0:
+    if not historico_movimentacoes:
         print('Não há movimentações para desfazer.')
         return
 
-    ultimo_movimento = historico_movimentacoes.pop()
+    ultimo_movimento = historico_movimentacoes[-1]
 
     peca_encontrada = buscar_peca(ultimo_movimento['peca'])
 
-    if peca_encontrada is None:
+    if peca_encontrada is None or peca_encontrada is not ultimo_movimento['registro']:
+        historico_movimentacoes.pop()
         print('A peça dessa movimentação não existe mais no cadastro.')
         return
 
+    quantidade = ultimo_movimento['quantidade']
+
     if ultimo_movimento['tipo'] == 'entrada':
-        peca_encontrada['Quantidade: '] -= ultimo_movimento['quantidade']
+        if peca_encontrada['Quantidade: '] < quantidade:
+            print('Não é possível desfazer: estoque insuficiente.')
+            return
+
+        peca_encontrada['Quantidade: '] -= quantidade
+
     else:
-        peca_encontrada['Quantidade: '] += ultimo_movimento['quantidade']
+        peca_encontrada['Quantidade: '] += quantidade
+
+    historico_movimentacoes.pop()
 
     print(f"Movimentação desfeita: {ultimo_movimento['tipo'].upper()} de "
-          f"{ultimo_movimento['quantidade']} unidade(s) em {ultimo_movimento['peca']}")
+          f"{quantidade} unidade(s) em {ultimo_movimento['peca']}")
 
 
 if __name__ == "__main__":
