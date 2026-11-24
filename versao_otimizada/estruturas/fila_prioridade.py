@@ -50,6 +50,11 @@ class FilaPrioridade:
             i = maior
 
     def inserir(self, ordem):
+        if ordem.pos_fila != -1:
+            if self._contem(ordem):
+                return
+            raise ValueError("A ordem já pertence a outra fila.")
+
         self.fila.append(ordem)
         ordem.pos_fila = len(self.fila) - 1
 
@@ -92,9 +97,13 @@ class FilaPrioridade:
 
         return False
 
+    def _contem(self, ordem):
+        posicao = ordem.pos_fila
+        return 0 <= posicao < len(self.fila) and self.fila[posicao] is ordem
+
     #novo: remove uma ordem já conhecida usando a posição guardada nela, O(log n)
     def remover(self, ordem):
-        if ordem.pos_fila == -1:
+        if not self._contem(ordem):
             return False
 
         self._remover_na_posicao(ordem.pos_fila)
@@ -102,7 +111,7 @@ class FilaPrioridade:
 
     #novo: deve ser chamado depois de mudar a prioridade de uma ordem que está na fila
     def atualizar_prioridade(self, ordem):
-        if ordem.pos_fila == -1:
+        if not self._contem(ordem):
             return
 
         self._subir(ordem.pos_fila)

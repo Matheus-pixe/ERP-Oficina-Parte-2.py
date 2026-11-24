@@ -112,6 +112,10 @@ def menu_clientes():
       id_cliente= buscar_cliente(nome)
       if id_cliente is not None:
         novo_nome = validacao("Digite o novo nome:")
+        outro_cliente = buscar_cliente(novo_nome)
+        if outro_cliente is not None and outro_cliente != id_cliente:
+          print("Cliente já cadastrado no sistema!")
+          continue
         cadastro[id_cliente][0] = novo_nome
         ordenar_clientes()
         print("Nome do cliente atualizado!")

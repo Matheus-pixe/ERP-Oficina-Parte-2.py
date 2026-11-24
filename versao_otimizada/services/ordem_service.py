@@ -1,5 +1,3 @@
-from math import isfinite
-
 from algoritmos.ordenacao import (
     ordenar_por_prioridade,
     ordenar_por_valor,
@@ -26,9 +24,13 @@ def cadastrar_ordem():
         print("Já existe uma ordem com esse código.")
         return
 
-    cliente = input("Nome do cliente: ")
-    veiculo = input("Veículo: ")
-    problema = input("Problema apresentado: ")
+    cliente = input("Nome do cliente: ").strip()
+    veiculo = input("Veículo: ").strip()
+    problema = input("Problema apresentado: ").strip()
+
+    if not (cliente and veiculo and problema):
+        print("Informe o cliente, o veículo e o problema da ordem.")
+        return
 
     try:
         prioridade = int(input("Prioridade (1 a 5): "))
@@ -192,17 +194,11 @@ def registrar_servico():
 
     try:
         valor_texto = input("Valor do serviço: R$ ")
-        valor = float(valor_texto.replace(",", "."))
+        ordem.adicionar_servico(descricao, valor_texto.replace(",", "."))
 
     except ValueError:
-        print("Valor inválido.")
+        print("Valor inválido. Informe um valor em reais, com precisão de centavos.")
         return
-
-    if valor < 0 or not isfinite(valor):
-        print("Valor inválido.")
-        return
-
-    ordem.adicionar_servico(descricao, valor)
 
     print("Serviço registrado com sucesso!")
     print(f"Valor atual da OS: R$ {ordem.valor_total:.2f}")

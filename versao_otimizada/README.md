@@ -1,3 +1,9 @@
+# ERP Oficina — versão otimizada
+
+Na pasta que contém `main.py`, execute `python main.py` (no Windows, também é possível usar `py main.py`). Para conferir as correções, execute `python testes_regressao.py`. O sistema utiliza a biblioteca padrão do Python 3 e guarda os dados em memória durante a sessão.
+
+As ordens de serviço são indexadas por código em uma árvore AVL. O menu de ordens oferece os três percursos da árvore. O atendimento utiliza um heap de prioridade e os relatórios utilizam Merge Sort. O documento original abaixo registra o planejamento da Parte 1.
+
 # ERP Oficina
 
 Projeto acadêmico desenvolvido em Python com o objetivo de criar um sistema ERP para gerenciamento de uma oficina mecânica, aplicando conceitos de estruturas de dados e algoritmos.
