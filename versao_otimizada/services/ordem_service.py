@@ -26,9 +26,13 @@ def cadastrar_ordem():
         print("Já existe uma ordem com esse código.")
         return
 
-    cliente = input("Nome do cliente: ")
-    veiculo = input("Veículo: ")
-    problema = input("Problema apresentado: ")
+    cliente = input("Nome do cliente: ").strip()
+    veiculo = input("Veículo: ").strip()
+    problema = input("Problema apresentado: ").strip()
+
+    if not cliente or not veiculo or not problema:
+        print("Cliente, veículo e problema são obrigatórios.")
+        return
 
     try:
         prioridade = int(input("Prioridade (1 a 5): "))
