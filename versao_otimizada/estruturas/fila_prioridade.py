@@ -50,6 +50,10 @@ class FilaPrioridade:
             i = maior
 
     def inserir(self, ordem):
+        # Cada ordem guarda uma única posição e só pode integrar uma fila.
+        if ordem.pos_fila != -1:
+            return
+
         self.fila.append(ordem)
         ordem.pos_fila = len(self.fila) - 1
 
@@ -94,7 +98,7 @@ class FilaPrioridade:
 
     #novo: remove uma ordem já conhecida usando a posição guardada nela, O(log n)
     def remover(self, ordem):
-        if ordem.pos_fila == -1:
+        if not (0 <= ordem.pos_fila < len(self.fila)) or self.fila[ordem.pos_fila] is not ordem:
             return False
 
         self._remover_na_posicao(ordem.pos_fila)
@@ -102,8 +106,9 @@ class FilaPrioridade:
 
     #novo: deve ser chamado depois de mudar a prioridade de uma ordem que está na fila
     def atualizar_prioridade(self, ordem):
-        if ordem.pos_fila == -1:
+        if not (0 <= ordem.pos_fila < len(self.fila)) or self.fila[ordem.pos_fila] is not ordem:
             return
 
         self._subir(ordem.pos_fila)
         self._descer(ordem.pos_fila)
+

@@ -202,7 +202,7 @@ def registrar_servico():
         print("Valor inválido.")
         return
 
-    if valor < 0 or not isfinite(valor):
+    if valor < 0 or not isfinite(valor) or not isfinite(ordem.valor_total + valor):
         print("Valor inválido.")
         return
 
@@ -341,3 +341,4 @@ def exibir_pos_ordem():
         ordens.pos_ordem(com_nivel=True),
         False
     )
+

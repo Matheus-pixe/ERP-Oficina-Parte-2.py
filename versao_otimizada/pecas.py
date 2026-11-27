@@ -181,6 +181,12 @@ def alteracao_pecas():
         print('Quantidade ou valor inválido!')
         return
 
+    if quantidade != peca_encontrada['Quantidade: ']:
+        # Uma contagem manual substitui o saldo dos movimentos anteriores.
+        for movimento in historico_movimentacoes:
+            if movimento['registro'] is peca_encontrada:
+                movimento['invalidado'] = True
+
     peca_encontrada['Quantidade: '] = quantidade
     peca_encontrada['Preço: R$'] = valor
 
@@ -299,6 +305,11 @@ def desfazer_ultima_movimentacao():
         print('A peça dessa movimentação não existe mais no cadastro.')
         return
 
+    if ultimo_movimento.get('invalidado', False):
+        historico_movimentacoes.pop()
+        print('Não é possível desfazer: o estoque foi ajustado manualmente depois dessa movimentação.')
+        return
+
     quantidade = ultimo_movimento['quantidade']
 
     if ultimo_movimento['tipo'] == 'entrada':
@@ -319,3 +330,4 @@ def desfazer_ultima_movimentacao():
 
 if __name__ == "__main__":
     menu()
+
